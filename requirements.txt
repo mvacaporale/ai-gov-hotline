@@ -1,0 +1,23 @@
+python-dotenv
+
+# llama index
+llama_index
+llama-index-embeddings-openai
+
+# Langchain 
+langchain
+langchain-community
+langchain-openai
+
+# Flask
+flask
+
+# Pytest
+pytest
+
+# Google maps
+googlemaps
+
+# Reading and emailing pdfs
+pdfrw
+mailersend
