@@ -15,7 +15,7 @@ flask
 # Pytest
 pytest
 
-# Google maps
+# Google maps for validating email addresses
 googlemaps
 
 # Reading and emailing pdfs

@@ -133,7 +133,7 @@ def compose_and_send_form(form_data):
     form_file = "forms/utility_assistance_application.pdf"
     filled_pdf = write_form_to_pdf(form_file, form_data)
     send_email(
-        to_email="mvacaporale@gmail.com",
+        to_email="aiwaterchatbot@gmail.com",
         subject="New Utility Service Form",
         pdf_path=filled_pdf,
         html="""

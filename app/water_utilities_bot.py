@@ -100,25 +100,44 @@ class WaterUtilitiesBot:
 
     def extract_field_info(self, user_input: str, assistant_input: str) -> Dict:
         """Extract relevant field information from user input"""
-        result = self.tagging_chain.run(
-            [
-                {
-                    "role": "user",
-                    "content": user_input,
-                },
-                {
-                    "role": "assistant",
-                    "content": assistant_input,
-                },
-            ]
-        )
-        return result.model_dump(exclude_unset=True)
+        try:
+            result = self.tagging_chain.run(
+                [
+                    {
+                        "role": "user",
+                        "content": user_input,
+                    },
+                    {
+                        "role": "assistant",
+                        "content": assistant_input,
+                    },
+                ]
+            )
+            return result.model_dump(exclude_unset=True)
+
+        except ValueError as e:
+            logger.info(f"Incorrect format passed from the LLM into the form.")
+            return {}
+
 
     def update_form(self, field_info: Dict):
         """Update the current form with new field information"""
-        logger.debug("Updating w/ field info:", field_info)
+
+        logger.debug(f"Updating w/ field info: {field_info}")
         if self.current_form is not None:
-            self.current_form.update(**field_info)
+            try:
+                self.current_form.update(**field_info)
+                return True
+
+            except ValueError as e:
+                logger.info(f"Incorrect format given for fields: {field_info} (Error: {str(e)})")
+                return False
+
+    def send_completed_form(self, completed_form: Dict):
+        try:
+            compose_and_send_form(completed_form)
+        except Exception as e:
+            logger.info(f"Unable to send completed form. Error ({e})")
 
     def process_message(self, user_input: str, last_message: str = ""):
         """Process user message and return appropriate response"""
@@ -149,18 +168,18 @@ class WaterUtilitiesBot:
 
             # Extract any field information from the user's input
             field_info = self.extract_field_info(user_input, last_message)
-            logger.debug("Received field info:", field_info)
-            self.update_form(field_info)
+            logger.debug(f"Received field info: {field_info}")
+            valid_update = self.update_form(field_info)
 
             # Check what fields are still empty
             empty_fields = self.check_what_is_empty(self.current_form)
-            logger.debug("Remaining needed field info:", empty_fields)
+            logger.debug(f"Remaining needed field info: {empty_fields}")
 
             if not empty_fields:
                 # Form is complete
                 self.state = ChatState.GENERAL
                 completed_form = self.current_form
-                compose_and_send_form(self.current_form)
+                self.send_completed_form(completed_form)
                 self.current_form = None
 
                 # Format output as a message stream.
@@ -171,6 +190,13 @@ class WaterUtilitiesBot:
                     ]
                 )
 
+            # Compose info given to help with next prompt
+            info_given = str(field_info)
+            if len(field_info) == 0:
+                info_given += "\nNote: We weren't able to extract any information from the user."
+            if not valid_update:
+                info_given += "\nNote: Some of the info given was not in the correct format."
+
             # Form still has empty fields
             empty_field = empty_fields[0]
             description = self.current_form.model_fields[empty_field].description
@@ -178,7 +204,7 @@ class WaterUtilitiesBot:
                 self.info_gathering_chain.stream(
                     {
                         "ask_for": empty_field,
-                        "info_given": field_info,
+                        "info_given": info_given,
                         "last_message": last_message,
                         "description": description,
                     }

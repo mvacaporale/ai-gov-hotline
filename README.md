@@ -26,7 +26,7 @@ these up at the following links.
 
 - [Open AI](platform.openai.com): For processing user input and generating responses
 - [Google API](https://developers.google.com/maps/documentation/address-validation/get-api-key): For validating and completing addresses. Be sure to explicitly enable the [Places API](https://console.cloud.google.com/apis/library/places-backend.googleapis.com?inv=1&invt=AbqBDg&project=ai-gov-hotlin)
-- [Mailer Send](mailersend.com): For emailing completed forms.
+- [Mailer Send](mailersend.com): For emailing completed forms
 
 
 ### Environment Variables
@@ -62,16 +62,16 @@ Handles incoming chat requests and generates appropriate responses.
             "content": "user message here"
         }
     ],
-    "stream": True,
+    "stream": true,
 }
 ```
 
 **Response**: Server-sent events with content_type="text/event-stream"
 
-### Processing Call with Vapi
+### Processing Calls with Vapi
 
 To process incoming calls with [Vapi](https://dashboard.vapi.ai/assistants), you
-would initiate the flask app as shown and then run `ngrok` to expose the
+initiate the flask app as shown and then run `ngrok` to expose the
 `/chat/completions` endpoint.
 ```
 ngrok http 5000

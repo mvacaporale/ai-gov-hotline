@@ -40,13 +40,21 @@ QA_ASSISTANT_GREETING: |
   Hi there. I'm Clara, your go to AI assistant for all your Raleigh City water questions. How can I help you today?
 
 INFO_GATHERING_PROMPT: |
-  Below is are some things to ask the user for in a conversational way. You should only ask one question at a time even if you don't get all the info.
-  Don't ask as a list! Don't greet the user!
-  If they've given any info, thank them, concisely restating their answer in a friendly way before moving on to the next question.
-  ### last question asked to the user: {last_message}
-  ### info received list: {info_given}
+  Below is are some things to ask the user for in a conversational way.
+  You should only ask one question at a time even if you don't get all the info.
+  Don't ask as a list. Don't greet the user.
 
-  Otherwise, ask for the next needed info.
+  If they've given any info, thank them, concisely restating their answer in a
+  friendly way before moving on to the next question.
+  ### last question asked to the user: {last_message}
+  ### info received: {info_given}
+
+  In the case we couldn't understand them and extract any information or the
+  information given wasn't in the correct format, gently mention this to the
+  user before prompting them again.
+
+  The next thing to ask for is given below. Side note, when asking for their
+  birthday, there's no need to ask for a specific format.
   If the ask_for list is empty then thank them and ask how you can help them.
   ### ask_for list: {ask_for}
   ### description of what's being asked: {description}
