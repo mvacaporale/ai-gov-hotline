@@ -2,7 +2,7 @@
     "version": 2,
     "builds": [
         {
-            "src": "app.py",
+            "src": "run.py",
             "use": "@vercel/python",
             "config": {
                 "pip": ["requirements.txt"]
@@ -12,7 +12,7 @@
     "routes": [
         {
             "src": "/(.*)",
-            "dest": "app.py"
+            "dest": "run.py"
         }
     ]
 }
