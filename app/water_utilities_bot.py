@@ -141,30 +141,8 @@ class WaterUtilitiesBot:
 
     def process_message(self, user_input: str, last_message: str = ""):
         """Process user message and return appropriate response"""
-        if self.state == ChatState.GENERAL:
-            if self.is_form_request(user_input):
 
-                self.state = ChatState.FORM_FILLING
-                self.current_form = UtilityAssistanceApplication()
-
-                empty_field = self.check_what_is_empty(self.current_form)[0]
-                description = self.current_form.model_fields[empty_field].description
-                return compose_stream(
-                    self.info_gathering_chain.stream(
-                        {
-                            "ask_for": empty_field,
-                            "info_given": {},
-                            "last_message": last_message,
-                            "description": description,
-                        }
-                    ),
-                    "I'll help you submit a service request. Let's fill out the form together.\n",
-                )
-
-            # Default to answering the users questions; returned as stream.
-            return self.query_engine.query(user_input).response_gen
-
-        elif self.state == ChatState.FORM_FILLING:
+        if self.state == ChatState.FORM_FILLING:
 
             # Extract any field information from the user's input
             field_info = self.extract_field_info(user_input, last_message)
@@ -210,6 +188,29 @@ class WaterUtilitiesBot:
                     }
                 )
             )
+
+        # Default behavior is to help the user with Q&A
+        if self.is_form_request(user_input):
+
+            self.state = ChatState.FORM_FILLING
+            self.current_form = UtilityAssistanceApplication()
+
+            empty_field = self.check_what_is_empty(self.current_form)[0]
+            description = self.current_form.model_fields[empty_field].description
+            return compose_stream(
+                self.info_gathering_chain.stream(
+                    {
+                        "ask_for": empty_field,
+                        "info_given": {},
+                        "last_message": last_message,
+                        "description": description,
+                    }
+                ),
+                "I'll help you submit a service request. Let's fill out the form together.\n",
+            )
+
+        # Default to answering the users questions; returned as stream.
+        return self.query_engine.query(user_input).response_gen
 
 
 def main():
