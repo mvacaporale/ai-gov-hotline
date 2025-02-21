@@ -102,4 +102,5 @@ def openai_advanced_custom_llm_route():
 
 
 if __name__ == "__main__":
-    app.run(debug=True, port=5000)  # You can adjust the port if needed
+    port = os.getenv('PORT', '5000')
+    app.run(host="0.0.0.0", port=int(port))  # You can adjust the port if needed
